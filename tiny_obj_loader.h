@@ -51,7 +51,7 @@ THE SOFTWARE.
 
 //
 // Use this in *one* .cc
-//   #define TINYOBJLOADER_IMPLEMENTATION
+//   #define CUSTOM_TINYOBJLOADER_IMPLEMENTATION
 //   #include "tiny_obj_loader.h"
 //
 
@@ -62,6 +62,9 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 
+#ifdef TINYOBJ_CUSTOM_NAMESPACE
+namespace TINYOBJ_CUSTOM_NAMESPACE {
+#endif
 namespace tinyobj {
 
 // TODO(syoyo): Better C++11 detection for older compiler
@@ -636,12 +639,14 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
                                const char *linebuf);
 
 /// =<<========== Legacy v1 API =============================================
-
-}  // namespace tinyobj
+} // namespace tinyobj
+#ifdef TINYOBJ_CUSTOM_NAMESPACE
+} // namespace TINYOBJ_CUSTOM_NAMESPACE
+#endif
 
 #endif  // TINY_OBJ_LOADER_H_
 
-#ifdef TINYOBJLOADER_IMPLEMENTATION
+#ifdef CUSTOM_TINYOBJLOADER_IMPLEMENTATION
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -653,9 +658,12 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
 #include <sstream>
 #include <utility>
 
+#ifdef TINYOBJ_CUSTOM_NAMESPACE
+namespace TINYOBJ_CUSTOM_NAMESPACE {
+#endif
 namespace tinyobj {
 
-MaterialReader::~MaterialReader() {}
+TINYOBJLOADER_INLINE MaterialReader::~MaterialReader() {}
 
 struct vertex_index_t {
   int v_idx, vt_idx, vn_idx;
@@ -1183,7 +1191,7 @@ static vertex_index_t parseRawTriple(const char **token) {
   return vi;
 }
 
-bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
+TINYOBJLOADER_INLINE bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
                                const char *linebuf) {
   // @todo { write more robust lexer and parser. }
   bool found_texname = false;
@@ -1685,7 +1693,7 @@ static std::string JoinPath(const std::string &dir,
   }
 }
 
-void LoadMtl(std::map<std::string, int> *material_map,
+TINYOBJLOADER_INLINE void LoadMtl(std::map<std::string, int> *material_map,
              std::vector<material_t> *materials, std::istream *inStream,
              std::string *warning, std::string *err) {
   (void)err;
@@ -2076,7 +2084,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
   }
 }
 
-bool MaterialFileReader::operator()(const std::string &matId,
+TINYOBJLOADER_INLINE bool MaterialFileReader::operator()(const std::string &matId,
                                     std::vector<material_t> *materials,
                                     std::map<std::string, int> *matMap,
                                     std::string *warn, std::string *err) {
@@ -2135,7 +2143,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
   }
 }
 
-bool MaterialStreamReader::operator()(const std::string &matId,
+TINYOBJLOADER_INLINE bool MaterialStreamReader::operator()(const std::string &matId,
                                       std::vector<material_t> *materials,
                                       std::map<std::string, int> *matMap,
                                       std::string *warn, std::string *err) {
@@ -2155,7 +2163,7 @@ bool MaterialStreamReader::operator()(const std::string &matId,
   return true;
 }
 
-bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
+TINYOBJLOADER_INLINE bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::vector<material_t> *materials, std::string *warn,
              std::string *err, const char *filename, const char *mtl_basedir,
              bool trianglulate, bool default_vcols_fallback) {
@@ -2191,7 +2199,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
                  trianglulate, default_vcols_fallback);
 }
 
-bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
+TINYOBJLOADER_INLINE bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::vector<material_t> *materials, std::string *warn,
              std::string *err, std::istream *inStream,
              MaterialReader *readMatFn /*= NULL*/, bool triangulate,
@@ -2750,7 +2758,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
   return true;
 }
 
-bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
+TINYOBJLOADER_INLINE bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
                          void *user_data /*= NULL*/,
                          MaterialReader *readMatFn /*= NULL*/,
                          std::string *warn, /* = NULL*/
@@ -3033,7 +3041,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
   return true;
 }
 
-bool ObjReader::ParseFromFile(const std::string &filename,
+TINYOBJLOADER_INLINE bool ObjReader::ParseFromFile(const std::string &filename,
                               const ObjReaderConfig &config) {
   std::string mtl_search_path;
 
@@ -3057,7 +3065,7 @@ bool ObjReader::ParseFromFile(const std::string &filename,
   return valid_;
 }
 
-bool ObjReader::ParseFromString(const std::string &obj_text,
+TINYOBJLOADER_INLINE bool ObjReader::ParseFromString(const std::string &obj_text,
                                 const std::string &mtl_text,
                                 const ObjReaderConfig &config) {
   std::stringbuf obj_buf(obj_text);
@@ -3078,5 +3086,8 @@ bool ObjReader::ParseFromString(const std::string &obj_text,
 #pragma clang diagnostic pop
 #endif
 }  // namespace tinyobj
+#ifdef TINYOBJ_CUSTOM_NAMESPACE
+} // namespace TINYOBJ_CUSTOM_NAMESPACE
+#endif
 
 #endif
